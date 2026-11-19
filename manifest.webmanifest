@@ -1,0 +1,27 @@
+{
+  "id": "solo-fitness",
+  "name": "SOLO Fitness",
+  "short_name": "SOLO",
+  "description": "Track activities and review your training progress.",
+  "lang": "en",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0A0C0F",
+  "theme_color": "#0A0C0F",
+  "icons": [
+    {
+      "src": "./icons/solo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/solo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
