@@ -747,6 +747,7 @@ const ICONS = {
   home: '<path d="M3.5 10.5L12 3.5l8.5 7V20a1 1 0 0 1-1 1h-4.5v-6h-6v6H4.5a1 1 0 0 1-1-1z"/>',
   record: '<path d="M3 12h4l2.5-6.5 4.5 13 2.5-8 1.8 3.5H21"/>',
   list: '<path d="M8.5 6h12M8.5 12h12M8.5 18h12"/><circle cx="4" cy="6" r="1.3"/><circle cx="4" cy="12" r="1.3"/><circle cx="4" cy="18" r="1.3"/>',
+  bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
   progress: '<path d="M5 20v-6M11 20V6M17 20v-10M3 20h18"/>',
   trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 5H5a3 3 0 0 0 3 4.5M16 5h3a3 3 0 0 1-3 4.5"/><path d="M12 13v4M9 20.5h6M10.5 17h3"/>',
   target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
@@ -1102,11 +1103,7 @@ window.addEventListener('hashchange', () => {
 });
 
 function demoBannerHtml() {
-  if (!App.hasDemo()) return '';
-  return `<div class="demo-banner">
-    <span>${icon('info', 16)} Demo dataset active — sample activities are clearly badged DEMO and include full HR/GPS telemetry.</span>
-    <button class="btn btn-sm btn-lime" data-action="demo-remove">Remove demo data</button>
-  </div>`;
+  return '';
 }
 function emptyState(art, title, text, btnAction, btnLabel) {
   return `<div class="empty">
@@ -2326,7 +2323,7 @@ function importGpxFile(file) {
 VIEWS.record = {
   title: 'Record Activity',
   selType: null,
-  head() { return { title: 'Record Activity', sub: 'Live GPS telemetry, street map, voice split cues & GPX import' }; },
+  head() { return { title: 'Record Activity', sub: 'Outdoor GPS & workout tracking' }; },
   render() { return Recorder.active ? renderLiveRecording() : renderRecordIdle(); },
   mount() {
     const u = App.settings.units;
@@ -2448,7 +2445,7 @@ function renderRecordIdle() {
     <div class="map-wrap" style="margin-top:18px;--map-h:240px">
       <div id="pre-live-map" class="map-host"></div>
       ${mapControlsHtml(`<button class="btn-icon" data-action="map-locate" aria-label="Center on my GPS location" data-tip="Locate me (GPS)">${icon('gps', 15)}</button>`)}
-      <div class="map-badge" id="pre-gps-badge">Live Basemap · Drag to pan, scroll to zoom, or tap pin to switch layers</div>
+      <div class="map-badge" id="pre-gps-badge">Live GPS Map</div>
     </div>
 
     <div class="row wrap" style="margin-top:18px;gap:12px">
@@ -2456,9 +2453,6 @@ function renderRecordIdle() {
       <button class="btn btn-lg btn-outline" data-action="rec-manual">${icon('pencil', 17)} Manual Entry</button>
       <button class="btn btn-lg btn-ghost" data-action="rec-import">${icon('upload', 17)} Import GPX</button>
       <input type="file" id="gpx-file" accept=".gpx,application/gpx+xml" class="hide">
-    </div>
-    <div class="note" style="margin-top:16px">${icon('info')}
-      <div>100% open-source OpenStreetMap &amp; local cartographic vector rendering — zero API keys, zero tracking. Spoken split cues (${App.settings.voiceCues ? 'enabled' : 'disabled'}) announce completed ${App.settings.units === 'imperial' ? 'miles' : 'kilometers'} and pace.</div>
     </div>
   </div>`;
 }
@@ -3443,20 +3437,38 @@ VIEWS.settings = {
     ${demoBannerHtml()}
 
     <div class="card profile-head">
-      <div class="avatar" data-action="photo-pick" role="button" tabindex="0" data-tip="Change photo">
-        ${s.photo ? `<img src="${s.photo}" alt="Profile photo">` : initial}
-        <div class="avatar-edit">${icon('camera', 20)}</div>
-      </div>
-      <input type="file" id="photo-file" accept="image/*" class="hide">
-      <div class="grow">
-        <div class="display" style="font-weight:700;font-size:24px">${escapeHtml(s.name || 'Solo athlete')}</div>
-        <div class="muted small" style="margin-top:3px">
-          ${App.acts.length} activities · ${totalKm.toFixed(0)} km logged · Max HR ${s.maxHr} bpm · Resting HR ${s.restHr || 60} bpm
+      <div class="profile-main">
+        <div class="avatar" data-action="photo-pick" role="button" tabindex="0" data-tip="Change photo">
+          ${s.photo ? `<img src="${s.photo}" alt="Profile photo">` : initial}
+          <div class="avatar-edit">${icon('camera', 20)}</div>
         </div>
-        ${s.bio ? `<div class="tiny dim" style="margin-top:4px">${escapeHtml(s.bio)}</div>` : ''}
+        <input type="file" id="photo-file" accept="image/*" class="hide">
+        <div class="profile-meta">
+          <div class="profile-name">${escapeHtml(s.name || 'Solo athlete')}</div>
+          ${s.bio ? `<div class="muted small">${escapeHtml(s.bio)}</div>` : ''}
+          <div class="profile-actions">
+            <button class="btn btn-outline btn-xs" data-action="photo-pick">${icon('camera', 13)} Change photo</button>
+            ${s.photo ? `<button class="btn btn-ghost btn-xs text-danger" data-action="photo-remove">${icon('trash', 13)} Remove photo</button>` : ''}
+          </div>
+        </div>
       </div>
-      <div class="row wrap">
-        ${s.photo ? `<button class="btn btn-outline btn-sm" data-action="photo-remove">${icon('trash', 14)} Remove photo</button>` : ''}
+      <div class="profile-stats-grid">
+        <div class="pstat">
+          <div class="pstat-val">${App.acts.length}</div>
+          <div class="pstat-lbl">Activities</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val">${totalKm.toFixed(0)} km</div>
+          <div class="pstat-lbl">Logged</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val">${s.maxHr} bpm</div>
+          <div class="pstat-lbl">Max HR</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val">${s.restHr || 60} bpm</div>
+          <div class="pstat-lbl">Resting HR</div>
+        </div>
       </div>
     </div>
 
@@ -3497,34 +3509,43 @@ VIEWS.settings = {
       </div>
 
       <div class="card">
-        <div class="card-title">${icon('gps', 17)} Permissions &amp; Device Sensors</div>
-        <div class="card-sub" style="margin-top:4px">Hardware &amp; browser capabilities required for live tracking.</div>
+        <div class="card-title">${icon('gps', 17)} App Permissions &amp; Hardware</div>
+        <div class="card-sub" style="margin-top:4px">Device sensors and capabilities for outdoor tracking.</div>
         <div style="margin-top:8px">
           <div class="set-row">
             <div>
-              <div class="lab">Location / GPS Access</div>
-              <div class="desc" id="perm-geo-desc">Checking browser location permission…</div>
+              <div class="lab">Precise GPS Location</div>
+              <div class="desc" id="perm-geo-desc">Checking location permission…</div>
             </div>
-            <div class="set-ctl"><button class="btn btn-outline btn-sm" data-action="perm-test-gps">${icon('gps', 14)} Verify GPS</button></div>
+            <div class="set-ctl"><button class="btn btn-outline btn-sm" data-action="perm-test-gps">${icon('gps', 14)} Test GPS</button></div>
           </div>
           <div class="set-row">
             <div>
-              <div class="lab">Voice Split Cues (Speech API)</div>
-              <div class="desc">${'speechSynthesis' in window ? 'Supported by this browser' : 'Unavailable in this browser'}</div>
+              <div class="lab">App Notifications</div>
+              <div class="desc" id="perm-notif-desc">${'Notification' in window ? (Notification.permission === 'granted' ? 'Allowed — active workout split alerts' : (Notification.permission === 'denied' ? 'Blocked in settings' : 'Tap Allow to enable notifications')) : 'Unavailable on this device'}</div>
             </div>
-            <div class="set-ctl"><button class="btn btn-outline btn-sm" data-action="perm-test-voice">${icon('volume', 14)} Test Audio</button></div>
+            <div class="set-ctl">
+              ${'Notification' in window && Notification.permission !== 'granted' ? `<button class="btn btn-primary btn-sm" data-action="perm-req-notif">${icon('bell', 14)} Allow</button>` : `<button class="btn btn-outline btn-sm" data-action="perm-test-notif">${icon('bell', 14)} Test</button>`}
+            </div>
           </div>
           <div class="set-row">
             <div>
-              <div class="lab">Screen Wake Lock</div>
-              <div class="desc">Keeps display awake during active GPS recording.</div>
+              <div class="lab">Audio Split Cues</div>
+              <div class="desc">${'speechSynthesis' in window ? 'Speech engine active for kilometer pace announcements' : 'Speech synthesis not available'}</div>
             </div>
-            <div class="set-ctl"><span class="chip">${'wakeLock' in navigator ? 'Supported' : 'Standard Sleep'}</span></div>
+            <div class="set-ctl"><button class="btn btn-outline btn-sm" data-action="perm-test-voice">${icon('volume', 14)} Test Voice</button></div>
           </div>
           <div class="set-row">
             <div>
-              <div class="lab">On-Device Storage</div>
-              <div class="desc">Zero cloud sync — stored privately in ${DB.mode === 'idb' ? 'IndexedDB' : 'localStorage'}.</div>
+              <div class="lab">Display Always-On (Wake Lock)</div>
+              <div class="desc">Prevents screen from sleeping during active recording.</div>
+            </div>
+            <div class="set-ctl"><span class="chip" style="color:${'wakeLock' in navigator ? 'var(--ok)' : 'var(--text-3)'}">${'wakeLock' in navigator ? 'Supported' : 'Standard'}</span></div>
+          </div>
+          <div class="set-row">
+            <div>
+              <div class="lab">Offline Storage &amp; Database</div>
+              <div class="desc">Stores all workout tracks and personal records locally (${DB.mode === 'idb' ? 'IndexedDB' : 'LocalStorage'}).</div>
             </div>
             <div class="set-ctl"><span class="chip" style="color:var(--ok)">Active</span></div>
           </div>
@@ -3532,7 +3553,7 @@ VIEWS.settings = {
       </div>
 
       <div class="card">
-        <div class="card-title">${icon('gear', 17)} Preferences &amp; Telemetry</div>
+        <div class="card-title">${icon('gear', 17)} Preferences &amp; Display</div>
         <div style="margin-top:8px">
           <div class="set-row">
             <div><div class="lab">Units</div><div class="desc">Distance, pace and elevation everywhere.</div></div>
@@ -3587,8 +3608,8 @@ VIEWS.settings = {
       </div>
 
       <div class="card">
-        <div class="card-title">${icon('database', 17)} Data &amp; Privacy</div>
-        <div class="card-sub" style="margin-top:4px">100% local — no accounts, no cloud, no tracking.</div>
+        <div class="card-title">${icon('database', 17)} Data &amp; Storage</div>
+        <div class="card-sub" style="margin-top:4px">Workout history backup and data management.</div>
         <div style="margin-top:8px">
           <div class="set-row">
             <div><div class="lab">Backup (JSON)</div><div class="desc">Full export: activities, goals, settings.</div></div>
@@ -3609,11 +3630,11 @@ VIEWS.settings = {
             </div>
           </div>
           <div class="set-row">
-            <div><div class="lab">Demo dataset</div><div class="desc">5 months of badged sample workouts &amp; load curves.</div></div>
+            <div><div class="lab">Sample Workouts (Demo)</div><div class="desc">${App.hasDemo() ? `${App.acts.filter(a => a.demo).length} sample activities loaded.` : 'Sample activities to explore charts and maps.'}</div></div>
             <div class="set-ctl">
               ${App.hasDemo()
-                ? `<button class="btn btn-lime btn-sm" data-action="demo-remove">Remove demo data</button>`
-                : `<button class="btn btn-outline btn-sm" data-action="demo-load">Load demo data</button>`}
+                ? `<button class="btn btn-outline btn-sm text-danger" data-action="demo-remove">${icon('trash', 14)} Clear Demo Data</button>`
+                : `<button class="btn btn-outline btn-sm" data-action="demo-load">${icon('plus', 14)} Load Demo Data</button>`}
             </div>
           </div>
         </div>
@@ -3694,18 +3715,24 @@ regAction('set-seg', d => {
 regAction('set-toggle', d => { App.settings[d.key] = !App.settings[d.key]; saveSettings(); renderCurrent(); });
 async function updateGeoPermStatus() {
   const el = $('#perm-geo-desc');
-  if (!el) return;
-  if (!navigator.geolocation) { el.textContent = 'Geolocation API not available in this context.'; return; }
-  if (navigator.permissions && navigator.permissions.query) {
-    try {
-      const res = await navigator.permissions.query({ name: 'geolocation' });
-      const labels = { granted: 'Granted — ready for outdoor GPS tracking', prompt: 'Prompt — will ask when you start recording', denied: 'Blocked — enable location in browser site settings' };
-      el.textContent = labels[res.state] || res.state;
-      res.onchange = () => updateGeoPermStatus();
-      return;
-    } catch (e) {}
+  if (el) {
+    if (!navigator.geolocation) { el.textContent = 'Geolocation API not available in this context.'; }
+    else if (navigator.permissions && navigator.permissions.query) {
+      try {
+        const res = await navigator.permissions.query({ name: 'geolocation' });
+        const labels = { granted: 'Allowed — ready for outdoor tracking', prompt: 'Prompt — will request on workout start', denied: 'Blocked in browser site settings' };
+        el.textContent = labels[res.state] || res.state;
+        res.onchange = () => updateGeoPermStatus();
+      } catch (e) { el.textContent = 'Ready for GPS tracking'; }
+    } else {
+      el.textContent = 'Ready for GPS tracking';
+    }
   }
-  el.textContent = 'Ready — click Verify GPS to test location lock';
+  const notifEl = $('#perm-notif-desc');
+  if (notifEl && 'Notification' in window) {
+    const labels = { granted: 'Allowed — active workout split alerts', denied: 'Blocked in settings', default: 'Tap Allow to enable workout notifications' };
+    notifEl.textContent = labels[Notification.permission] || Notification.permission;
+  }
 }
 regAction('perm-test-gps', () => {
   if (!navigator.geolocation) return toast('Geolocation unavailable in this browser.', 'err');
@@ -3722,13 +3749,40 @@ regAction('perm-test-gps', () => {
     { enableHighAccuracy: true, timeout: 10000 }
   );
 });
+regAction('perm-req-notif', async () => {
+  if (!('Notification' in window)) return toast('Notifications not supported on this device.', 'err');
+  try {
+    const res = await Notification.requestPermission();
+    if (res === 'granted') {
+      try { new Notification('SOLO Fitness', { body: 'Notifications enabled for workout split alerts!' }); } catch(e){}
+      toast('Notification permission granted!', 'ok');
+    } else {
+      toast('Notification permission: ' + res, 'warn');
+    }
+    updateGeoPermStatus();
+    renderCurrent();
+  } catch (e) { toast('Notification error: ' + e.message, 'err'); }
+});
+regAction('perm-test-notif', () => {
+  if (!('Notification' in window)) return toast('Notifications not supported on this device.', 'err');
+  if (Notification.permission === 'granted') {
+    try {
+      new Notification('SOLO Fitness', { body: 'Kilometer 5 split: 4m 52s (Fastest split!)' });
+      toast('Test notification sent!', 'ok');
+    } catch(e) {
+      toast('Notification triggered', 'ok');
+    }
+  } else {
+    toast('Notifications are not permitted yet. Tap Allow to enable.', 'warn');
+  }
+});
 regAction('perm-test-voice', () => {
   if (!('speechSynthesis' in window)) return toast('Speech synthesis unavailable in this browser.', 'err');
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance('SOLO audio telemetry active. One kilometer complete.');
+  const u = new SpeechSynthesisUtterance('SOLO running cue. 1 kilometer completed. Pace: 5 minutes 20 seconds.');
   u.rate = 1.04;
   window.speechSynthesis.speak(u);
-  toast('Playing voice cue sample…', 'ok', 2800);
+  toast('Playing voice split sample…', 'ok', 2800);
 });
 regAction('photo-pick', () => { const f = $('#photo-file'); if (f) { f.value = ''; f.click(); } });
 document.addEventListener('change', e => {
