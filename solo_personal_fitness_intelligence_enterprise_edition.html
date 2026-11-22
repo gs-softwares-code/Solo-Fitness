@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOLO — Personal Fitness Intelligence</title>
+<meta name="description" content="SOLO — a private, single-user fitness command center. Track runs, rides, hikes and workouts with CTL/ATL/TSB training load modeling. You vs your best.">
+<meta name="theme-color" content="#090B0E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SOLO">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2096%2096'%3E%3Crect%20width='96'%20height='96'%20rx='22'%20fill='%230C0E12'/%3E%3Cpath%20d='M26%2062%20L44%2044%20L54%2054%20L72%2032'%20stroke='%23FF5A1F'%20stroke-width='9'%20stroke-linecap='round'%20stroke-linejoin='round'%20fill='none'/%3E%3Ccircle%20cx='72'%20cy='32'%20r='8'%20fill='%23C8F542'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="lockscreen" class="lockscreen" hidden></div>
+
+<div id="shell" class="shell" hidden>
+  <aside id="sidebar">
+    <div class="side-logo" data-nav="dashboard" role="button" tabindex="0">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 L10 10.5 L14 14 L20 6.5"/><circle cx="20" cy="6.5" r="1.6" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <div>
+        <div class="logo-word">SOLO</div>
+        <div class="logo-tag">You vs. your best</div>
+      </div>
+    </div>
+
+    <button class="cmd-trigger" data-action="open-cmd" aria-label="Quick search and commands">
+      <span class="row" style="gap:7px">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>
+        Quick jump…
+      </span>
+      <span class="kbd">⌘K</span>
+    </button>
+
+    <nav class="side-nav" id="sidenav"></nav>
+
+    <div class="side-foot">
+      <div class="side-util" id="side-util"></div>
+      <div class="side-note">Private by design. All telemetry &amp; training load models run locally on this device.</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header id="topbar">
+      <div class="topbar-brand" data-nav="dashboard" role="button" tabindex="0">
+        <div class="logo-mark" style="width:32px;height:32px;border-radius:9px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M4 17 L10 10.5 L14 14 L20 6.5"/><circle cx="20" cy="6.5" r="1.6" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <span class="logo-word" style="font-size:17px">SOLO</span>
+      </div>
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-sub" id="topbar-sub"></div>
+      </div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </header>
+    <main id="view" tabindex="-1"></main>
+  </div>
+
+  <nav id="bottomnav"></nav>
+</div>
+
+<button id="recchip" aria-label="Return to recording"></button>
+<div id="toasts" aria-live="polite"></div>
+<div id="modal-root"></div>
+<div id="cmd-root"></div>
+<div id="tooltip" role="tooltip"></div>
+
+<script src="scripts.js"></script>
+</body>
+</html>
